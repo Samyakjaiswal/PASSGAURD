@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PassGuard — Password Strength Analyzer</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Monospaced terminal feel for data; clean sans for UI -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- ── Top bar ──────────────────────────────────────────── -->
+  <header class="topbar">
+    <div class="logo">
+      <span class="logo-icon" aria-hidden="true">⬡</span>
+      <span class="logo-text">Pass<strong>Guard</strong></span>
+    </div>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark/light mode" title="Toggle theme">
+      <span class="theme-icon" id="themeIcon">☀</span>
+    </button>
+  </header>
+
+  <!-- ── Main ─────────────────────────────────────────────── -->
+  <main class="main">
+
+    <!-- Hero headline -->
+    <section class="hero" aria-label="Page headline">
+      <p class="eyebrow">Real-time analysis</p>
+      <h1 class="headline">How secure is<br><em>your password?</em></h1>
+      <p class="subhead">Entropy-based scoring. No data leaves your device.</p>
+    </section>
+
+    <!-- ── Analyzer card ──────────────────────────────────── -->
+    <section class="card" aria-label="Password analyzer">
+
+      <!-- Input row -->
+      <div class="input-group">
+        <label for="passwordInput" class="sr-only">Enter your password</label>
+        <input
+          type="password"
+          id="passwordInput"
+          class="password-input"
+          placeholder="Type or generate a password…"
+          autocomplete="off"
+          spellcheck="false"
+          aria-describedby="strengthLabel"
+        />
+        <div class="input-actions">
+          <button class="icon-btn" id="toggleVisibility" aria-label="Show password" title="Show / hide">
+            <svg id="eyeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+          <button class="icon-btn" id="copyBtn" aria-label="Copy password" title="Copy to clipboard">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+          </button>
+          <button class="icon-btn generate-btn" id="generateBtn" aria-label="Generate strong password" title="Generate password">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="23 4 23 10 17 10"/>
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Strength bar -->
+      <div class="strength-section" aria-live="polite">
+        <div class="strength-meta">
+          <span class="strength-label" id="strengthLabel">No password entered</span>
+          <span class="entropy-badge" id="entropyBadge" aria-label="Entropy score">— bits</span>
+        </div>
+        <div class="bar-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="strengthBar" aria-label="Password strength">
+          <div class="bar-fill" id="barFill"></div>
+          <!-- Segment ticks -->
+          <span class="tick" style="left:20%"></span>
+          <span class="tick" style="left:40%"></span>
+          <span class="tick" style="left:60%"></span>
+          <span class="tick" style="left:80%"></span>
+        </div>
+        <div class="bar-labels" aria-hidden="true">
+          <span>Very Weak</span><span>Weak</span><span>Medium</span><span>Strong</span><span>Very Strong</span>
+        </div>
+      </div>
+
+      <!-- Checklist + Metrics -->
+      <div class="analysis-grid">
+
+        <!-- Requirements checklist -->
+        <div class="checklist-panel">
+          <h2 class="panel-title">Requirements</h2>
+          <ul class="checklist" id="checklist" aria-label="Password requirements">
+            <li class="check-item" id="chkLength">
+              <span class="check-icon" aria-hidden="true"></span>
+              <span class="check-text">At least 8 characters</span>
+            </li>
+            <li class="check-item" id="chkUpper">
+              <span class="check-icon" aria-hidden="true"></span>
+              <span class="check-text">Uppercase letter (A–Z)</span>
+            </li>
+            <li class="check-item" id="chkLower">
+              <span class="check-icon" aria-hidden="true"></span>
+              <span class="check-text">Lowercase letter (a–z)</span>
+            </li>
+            <li class="check-item" id="chkNumber">
+              <span class="check-icon" aria-hidden="true"></span>
+              <span class="check-text">Number (0–9)</span>
+            </li>
+            <li class="check-item" id="chkSpecial">
+              <span class="check-icon" aria-hidden="true"></span>
+              <span class="check-text">Special character (!@#…)</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Metrics panel -->
+        <div class="metrics-panel">
+          <h2 class="panel-title">Metrics</h2>
+          <div class="metrics-grid">
+            <div class="metric">
+              <span class="metric-val" id="metricLen">—</span>
+              <span class="metric-key">Length</span>
+            </div>
+            <div class="metric">
+              <span class="metric-val" id="metricPool">—</span>
+              <span class="metric-key">Charset size</span>
+            </div>
+            <div class="metric">
+              <span class="metric-val" id="metricEntropy">—</span>
+              <span class="metric-key">Entropy (bits)</span>
+            </div>
+            <div class="metric">
+              <span class="metric-val" id="metricCrack">—</span>
+              <span class="metric-key">Est. crack time</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Recommendations -->
+      <div class="recommendations" id="recommendations" aria-live="polite" aria-label="Recommendations">
+        <h2 class="panel-title">Recommendations</h2>
+        <ul class="rec-list" id="recList">
+          <li class="rec-item placeholder">Start typing to see recommendations.</li>
+        </ul>
+      </div>
+
+    </section><!-- /card -->
+
+    <!-- Copy toast -->
+    <div class="toast" id="toast" role="status" aria-live="polite">Copied to clipboard</div>
+
+  </main>
+
+  <footer class="footer">
+    <p>Analysis runs entirely in your browser — no data is transmitted.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
